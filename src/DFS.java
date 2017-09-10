@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -20,7 +21,7 @@ public class DFS {
 //        System.out.println(d.check_liz_ear(new Point(3, 69), new Point(5, 6)));
 
         Long startTime = System.currentTimeMillis();
-        ArrayList<Point> p = d.dfs(18,18);
+        ArrayList<Point> p = d.dfs(4,4);
         Long endTime = System.currentTimeMillis() -  startTime;
         System.out.println("Took " + endTime.toString() + " milliseconds");
         Integer i, l = p.size();
@@ -78,11 +79,30 @@ public class DFS {
         return clonedObj;
     }
 
+    public void printStack(Stack<Node> stk){
+        Integer i,j,k,l;
+        l = stk.size();
+        for(i=0;i<l;i++){
+            Node node = stk.get(i);
+            ArrayList<Point> current = node.state;
+            k = current.size();
+            if(k == 0){
+                System.out.print("()");
+            }
+            for(j=0;j<k;j++){
+                System.out.print("(" + current.get(j).x.toString() + ", " + current.get(j).y.toString() + "), ");
+            }
+            System.out.print(" " + node.depth.toString() + " " + node.lizard + ", ");
+        }
+        System.out.println();
+    }
+
     public ArrayList<Point> dfs(Integer n , Integer p){
         Stack<Node> stk = new Stack<>();
         Node initial = new Node(new ArrayList<Point>(),0, p);
         stk.push(initial);
         while (!stk.isEmpty()){
+//            printStack(stk);
             Node current = stk.pop();
             if (current.depth+1 < n){
                 stk.push(new Node(clonePoint(current.state), current.depth+1, current.lizard));
@@ -98,7 +118,7 @@ public class DFS {
                     }
                     else{
                         if(current.depth + 1 < n){
-                            ArrayList<Point> newState = current.state;
+                            ArrayList<Point> newState = clonePoint(current.state);
                             newState.add(newPoint);
                             stk.push(new Node(newState, current.depth+1, current.lizard-1));
                         }
