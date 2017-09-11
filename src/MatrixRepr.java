@@ -1,6 +1,16 @@
 import sun.rmi.server.InactiveGroupException;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MatrixRepr {
 
@@ -118,6 +128,43 @@ public class MatrixRepr {
         }
     }
 
+    public Integer [][] matrixBFS(Integer [][] board, Integer n, Integer liz) {
+        Integer i, stp, d;
+        ArrayList<State> que = new ArrayList<State>();
+        State initial_state = new State(board, 0, liz);
+        que.add(initial_state);
+        while (!que.isEmpty()) {
+            State cur_state = que.remove(0);
+            d = cur_state.depth;
+            while (true) {
+                stp = getStart(cur_state.board[d], n);
+                if (stp == -1) {
+                    d = d + 1;
+                    if (d >= n)
+                        break;
+                } else {
+                    for (i = stp; i < n; i++) {
+                        if (cur_state.board[d][i] == 0) {
+                            if (cur_state.lizcount == 1) {
+                                cur_state.board[d][i] = 1;
+                                return cur_state.board;
+                            } else {
+                                Integer[][] new_board = boardClone(cur_state.board, n);
+                                Point newQ = new Point(d, i);
+                                updateBoard(new_board, newQ, n); // check if the state is changing
+                                State s = new State(new_board, d, cur_state.lizcount - 1);
+                                que.add(s);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return null;
+    }
+
+
     public Integer[][] matrixDFS(Integer board[][], Integer n, Integer liz){
         Integer i,stp,d;
         Stack<State> stk = new Stack<>();
@@ -160,43 +207,55 @@ public class MatrixRepr {
         return null;
     }
 
-    public static void main(String[] hmm){
-        Integer n,i,j;
-        n = 5;
-        MatrixRepr m = new MatrixRepr();
-        Integer [][] board = new Integer[n][n];
-
-        for(i=0;i<n;i++){
-            for(j=0;j<n;j++){
-                board[i][j] = 0;
-            }
-        }
-
-        board[1][1] = 2;
-        board[3][2] = 2;
-
-        Integer [][] result = m.matrixDFS(board, n, n);
-
-
-        if(result != null)
-        {
-            for(i=0;i<n;i++) {
-                for (j = 0; j < n; j++) {
-                    if(result[i][j] == -1)
-                        result[i][j] = 0;
+    public void readInput(){
+        Stream<String> rawData = null;
+        List<String> data = null;
+        Integer d, n,p,i,j;
+        String methodName, cur;
+        Integer [][] board;
+        try{
+            ArrayList<String> lines = new ArrayList<>();
+            rawData = Files.lines(Paths.get("input.txt"));
+            data = rawData.collect(Collectors.toList());
+            methodName = data.remove(0);
+            n = Integer.parseInt(data.remove(0));
+            p = Integer.parseInt(data.remove(0));
+            board = new Integer[n][n];
+            for(i=0;i<n;i++){
+                cur = data.remove(0);
+                for(j=0;j<n;j++){
+                    board[i][j] = Integer.parseInt(String.valueOf(cur.charAt(j)));
                 }
             }
 
-            m.printBoard(result, n);
+//            Integer [][] result = matrixDFS(board, n, p);
+            Integer [][] result = matrixBFS(board, n, p);
+
+            if(result != null)
+            {
+                for(i=0;i<n;i++) {
+                    for (j = 0; j < n; j++) {
+                        if(result[i][j] == -1)
+                            result[i][j] = 0;
+                    }
+                }
+
+                printBoard(result, n);
+            }
+
+            else
+                System.out.println("no solution");
+
         }
-
-        else
-            System.out.println("no solution");
-
-//        Point newQ = new Point(2,2);
-        //Trees
-//        board[2][3] = 2;
-//        board[4][4] = 2;
-
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
+
+    public static void main(String[] hmm) {
+        MatrixRepr m = new MatrixRepr();
+        m.readInput();
+    }
+
+
 }
