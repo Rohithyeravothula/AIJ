@@ -20,14 +20,27 @@ public class DFS {
 //        System.out.println(d.check_liz_ear(new Point(2, 4), new Point(3, 5)));
 //        System.out.println(d.check_liz_ear(new Point(3, 69), new Point(5, 6)));
 
+        Integer i, l, l1, n ,p;
+        n = 28;
+        p = n;
         Long startTime = System.currentTimeMillis();
-        ArrayList<Point> p = d.dfs(4,4);
+        ArrayList<Point> p2 = d.dfs(n,p);
         Long endTime = System.currentTimeMillis() -  startTime;
         System.out.println("Took " + endTime.toString() + " milliseconds");
-        Integer i, l = p.size();
+        l = p2.size();
+        System.out.println(l);
         for(i=0; i<l;i++){
-            System.out.println(p.get(i).x.toString() + " " + p.get(i).y.toString());
+            System.out.println(p2.get(i).x.toString() + " " + p2.get(i).y.toString());
         }
+
+//        Long startTime1 = System.currentTimeMillis();
+//        ArrayList<Point> p1 = d.bfs(n,p);
+//        Long endTime1 = System.currentTimeMillis() -  startTime1;
+//        System.out.println("Took " + endTime1.toString() + " milliseconds");
+//        l1 = p1.size();
+//        for(i=0;i<l1;i++){
+//            System.out.println(p1.get(i).x.toString() + " " + p1.get(i).y.toString());
+//        }
     }
 
 
@@ -79,6 +92,7 @@ public class DFS {
         return clonedObj;
     }
 
+
     public void printStack(Stack<Node> stk){
         Integer i,j,k,l;
         l = stk.size();
@@ -95,6 +109,8 @@ public class DFS {
             System.out.print(" " + node.depth.toString() + " " + node.lizard + ", ");
         }
         System.out.println();
+
+
     }
 
     public ArrayList<Point> dfs(Integer n , Integer p){
@@ -102,11 +118,11 @@ public class DFS {
         Node initial = new Node(new ArrayList<Point>(),0, p);
         stk.push(initial);
         while (!stk.isEmpty()){
-//            printStack(stk);
+
             Node current = stk.pop();
-            if (current.depth+1 < n){
-                stk.push(new Node(clonePoint(current.state), current.depth+1, current.lizard));
-            }
+//            if (current.depth+1 < n && current.lizard == n-current.depth){
+//                stk.push(new Node(clonePoint(current.state), current.depth+1, current.lizard));
+//            }
             Integer i;
             for(i=0; i<n; i++){
 
@@ -117,7 +133,7 @@ public class DFS {
                         return current.state;
                     }
                     else{
-                        if(current.depth + 1 < n){
+                        if(current.depth + 1 < n && current.lizard == n-current.depth){
                             ArrayList<Point> newState = clonePoint(current.state);
                             newState.add(newPoint);
                             stk.push(new Node(newState, current.depth+1, current.lizard-1));
@@ -129,4 +145,32 @@ public class DFS {
         return new ArrayList<Point>();
     }
 
+    public ArrayList<Point> bfs(Integer n, Integer p){
+        ArrayList<Node> queue = new ArrayList<>();
+        Node initial = new Node(new ArrayList<Point>(),0, p);
+        queue.add(initial);
+        while(!queue.isEmpty()) {
+            Node current = queue.remove(0);
+            if (current.depth + 1 < n) {
+                queue.add(new Node(clonePoint(current.state), current.depth + 1, current.lizard));
+            }
+            Integer i;
+            for (i = 0; i < n; i++) {
+                Point newPoint = new Point(current.depth, i);
+                if (issafe(current.state, newPoint)) {
+                    if (current.lizard == 1) {
+                        current.state.add(newPoint);
+                        return current.state;
+                    } else {
+                        if (current.depth + 1 < n) {
+                            ArrayList<Point> newState = clonePoint(current.state);
+                            newState.add(newPoint);
+                            queue.add(new Node(newState, current.depth + 1, current.lizard - 1));
+                        }
+                    }
+                }
+            }
+        }
+        return new ArrayList<Point>();
+    }
 }
