@@ -58,7 +58,13 @@ def wrap_check():
 def run_suit():
 	os.system("javac " + filename)
 	os.system("javac " + checkFileName)
-	wrap_algo()
-	wrap_check()
+	count = 0
+	while count < iterations:
+		if count % 10 == 0:
+			print("running for iteration " + str(count))	
+		wrap_algo()
+		wrap_check()
+		count += 1
 
+iterations = 10
 run_suit()
