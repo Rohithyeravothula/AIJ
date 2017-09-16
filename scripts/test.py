@@ -11,9 +11,6 @@ name = filename[:-5]
 checkFileName = "Validator.java"
 checkName = checkFileName[:-5]
 
-generator.generate()
-
-
 def run_algo():
 	os.system("java " + name)
 
@@ -21,7 +18,7 @@ def run_check():
 	os.system("java " + checkName + " > result.txt")
 	f = open("result.txt", 'r')
 	if f.read() == "FAILED":
-		os.system("mv input.txt fails")
+		os.system("cp input.txt fails")
 	f.close()
 
 def wrap_algo():
@@ -35,6 +32,7 @@ def wrap_algo():
 				print("terminating the algorithm ")
 				os.system("echo $(pidof -s java " + name + ")")
 				os.system("kill -9 $(pidof -s java " + name + ")")
+				os.system("cp input.txt fails")
 		break
 		if p.is_alive() is False:
 			break
@@ -61,10 +59,11 @@ def run_suit():
 	count = 0
 	while count < iterations:
 		if count % 10 == 0:
-			print("running for iteration " + str(count))	
+			print("running for iteration " + str(count))
+		generator.generate()	
 		wrap_algo()
 		wrap_check()
 		count += 1
 
-iterations = 10
+iterations = 10000
 run_suit()

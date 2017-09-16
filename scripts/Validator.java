@@ -1,3 +1,8 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,89 +14,94 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Validator {
-
 	private static final String INPUT_FILE_TEXT = "output.txt";
 	public Integer[][] solution;
 
-	public void readInput() {
-		Stream<String> stream = null;
-		try {
-			String pathToFile = Validator.getWorkingDirPath() + File.separator + INPUT_FILE_TEXT;
-			//System.out.println("path to file " + pathToFile);
-			List<String> inputLines = new ArrayList<>();
-			stream = Files.lines(Paths.get(pathToFile));
-			inputLines = stream.collect(Collectors.toList());
-			processData(inputLines);
+	public Validator() {
+	}
 
-		} catch (IOException e) {
+	public void readInput() {
+		Stream var1 = null;
+
+		try {
+			String var2 = getWorkingDirPath() + File.separator + "output.txt";
+			new ArrayList();
+			var1 = Files.lines(Paths.get(var2));
+			List var3 = (List)var1.collect(Collectors.toList());
+			System.out.println(var3.size());
+			this.processData(var3);
+		} catch (IOException var7) {
 			System.out.println("IO exception");
-			e.printStackTrace();
+			var7.printStackTrace();
 		} finally {
-			stream.close();
+			var1.close();
 		}
+
 	}
 
 	private void printValues() {
-		for (int i = 0; i < solution.length; i++) {
-			for (int j = 0; j < solution.length; j++) {
-				System.out.print(solution[i][j]);
+		for(int var1 = 0; var1 < this.solution.length; ++var1) {
+			for(int var2 = 0; var2 < this.solution.length; ++var2) {
+				System.out.print(this.solution[var1][var2]);
 			}
+
 			System.out.println();
 		}
+
 	}
 
-	private void processData(List<String> inputLines) {
+	private void processData(List<String> var1) {
+		if (var1.size() > 1) {
+			var1.remove(0);
+			this.solution = new Integer[var1.size()][var1.size()];
 
-		if (inputLines.size() > 1) {
-			inputLines.remove(0);
-			solution = new Integer[inputLines.size()][inputLines.size()];
-		} else {
-			return;
-		}
+			for(int var2 = 0; var2 < var1.size(); ++var2) {
+				String var3 = (String)var1.get(var2);
 
-		for (int i = 0; i < inputLines.size(); i++) {
-			String val = inputLines.get(i);
-			for (int j = 0; j < inputLines.size(); j++) {
-				solution[i][j] = Integer.parseInt(String.valueOf(val.charAt(j)));
+				for(int var4 = 0; var4 < var1.size(); ++var4) {
+					this.solution[var2][var4] = Integer.parseInt(String.valueOf(var3.charAt(var4)));
+				}
 			}
+
 		}
-		//printValues();
 	}
 
-	List<Integer> convert(String x) {
-		String[] val = x.split(" ");
-		List<Integer> machineList = new ArrayList<>();
-		for (int i = 0; i < val.length; i++) {
-			machineList.add(Integer.parseInt(val[i]));
+	List<Integer> convert(String var1) {
+		String[] var2 = var1.split(" ");
+		ArrayList var3 = new ArrayList();
+
+		for(int var4 = 0; var4 < var2.length; ++var4) {
+			var3.add(Integer.parseInt(var2[var4]));
 		}
-		return machineList;
+
+		return var3;
 	}
 
 	private static String getWorkingDirPath() {
-		Path currentRelativePath = Paths.get("");
-		String absPath = currentRelativePath.toAbsolutePath().toString();
-		return absPath;
+		Path var0 = Paths.get("");
+		String var1 = var0.toAbsolutePath().toString();
+		return var1;
 	}
 
 	public void validate() {
+		if(this.solution != null){
+			for(int var1 = 0; var1 < this.solution.length; ++var1) {
+				for(int var2 = 0; var2 < this.solution.length; ++var2) {
+					if (this.solution[var1][var2].intValue() == 1) {
+						if (this.checkrow(var1, var2)) {
+							System.out.println("FAIL");
+							return;
+						}
 
-		for (int i = 0; i < solution.length; i++) {
-			for (int j = 0; j < solution.length; j++) {
+						if (this.checkcolumn(var1, var2)) {
+							System.out.println("FAIL");
+							return;
+						}
 
-				if (solution[i][j] == 1) {
-					if (checkrow(i, j)) {
-						System.out.println("FAIL");
-						return;
-					}
-
-					else if (checkcolumn(i, j)) {
-						System.out.println("FAIL");
-						return;
-					}
-
-					else if (checkSlope(i, j)) {
-						System.out.println("FAIL");
-						return;
+						if (this.checkSlope(var1, var2)) {
+							System.out.println("FAIL");
+							return;
+						}
 					}
 				}
 			}
@@ -99,29 +109,29 @@ public class Validator {
 		System.out.println("PASSED");
 	}
 
-	private boolean checkSlope(int i, int j) {
-
-		if (checktopRight(i, j)) {
+	private boolean checkSlope(int var1, int var2) {
+		if (this.checktopRight(var1, var2)) {
 			return true;
-		} else if (checkTopLeft(i, j)) {
+		} else if (this.checkTopLeft(var1, var2)) {
 			return true;
-		} else if (checkBottomRight(i, j)) {
+		} else if (this.checkBottomRight(var1, var2)) {
 			return true;
-		} else if (checkBottomLeft(i, j)) {
-			return true;
+		} else {
+			return this.checkBottomLeft(var1, var2);
 		}
-		return false;
 	}
 
-	private boolean checkBottomLeft(int i, int j) {
-		boolean isTreeAvail = false;
-		int row = i, column = j;
-		while (row != solution.length - 1 && column != 0) {
-			row = row + 1;
-			column = column - 1;
-			if (solution[row][column] == 2) {
-				isTreeAvail = true;
-			} else if (!isTreeAvail && solution[row][column] == 1) {
+	private boolean checkBottomLeft(int var1, int var2) {
+		boolean var3 = false;
+		int var4 = var1;
+		int var5 = var2;
+
+		while(var4 != this.solution.length - 1 && var5 != 0) {
+			++var4;
+			--var5;
+			if (this.solution[var4][var5].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var4][var5].intValue() == 1) {
 				return true;
 			}
 		}
@@ -129,16 +139,17 @@ public class Validator {
 		return false;
 	}
 
-	private boolean checkBottomRight(int i, int j) {
-		boolean isTreeAvail = false;
-		int row = i, column = j;
+	private boolean checkBottomRight(int var1, int var2) {
+		boolean var3 = false;
+		int var4 = var1;
+		int var5 = var2;
 
-		while (row != solution.length - 1 && column != solution.length - 1) {
-			row = row + 1;
-			column = column + 1;
-			if (solution[row][column] == 2) {
-				isTreeAvail = true;
-			} else if (!isTreeAvail && solution[row][column] == 1) {
+		while(var4 != this.solution.length - 1 && var5 != this.solution.length - 1) {
+			++var4;
+			++var5;
+			if (this.solution[var4][var5].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var4][var5].intValue() == 1) {
 				return true;
 			}
 		}
@@ -146,16 +157,17 @@ public class Validator {
 		return false;
 	}
 
-	private boolean checkTopLeft(int i, int j) {
-		boolean isTreeAvail = false;
-		int row = i, column = j;
+	private boolean checkTopLeft(int var1, int var2) {
+		boolean var3 = false;
+		int var4 = var1;
+		int var5 = var2;
 
-		while (row != 0 && column != 0) {
-			row = row - 1;
-			column = column - 1;
-			if (solution[row][column] == 2) {
-				isTreeAvail = true;
-			} else if (!isTreeAvail && solution[row][column] == 1) {
+		while(var4 != 0 && var5 != 0) {
+			--var4;
+			--var5;
+			if (this.solution[var4][var5].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var4][var5].intValue() == 1) {
 				return true;
 			}
 		}
@@ -163,56 +175,55 @@ public class Validator {
 		return false;
 	}
 
-	private boolean checktopRight(int i, int j) {
+	private boolean checktopRight(int var1, int var2) {
+		boolean var3 = false;
+		int var4 = var1;
+		int var5 = var2;
 
-		boolean isTreeAvail = false;
-		int row = i, column = j;
-
-		while (row != 0 && column != solution.length - 1) {
-
-			row = row - 1;
-			column = column + 1;
-
-			if (solution[row][column] == 2) {
-				isTreeAvail = true;
-			} else if (!isTreeAvail && solution[row][column] == 1) {
+		while(var4 != 0 && var5 != this.solution.length - 1) {
+			--var4;
+			++var5;
+			if (this.solution[var4][var5].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var4][var5].intValue() == 1) {
 				return true;
 			}
-
 		}
 
 		return false;
 	}
 
-	private boolean checkcolumn(int i, int j) {
-		boolean isTreeAvailable = false;
-		for (int k = i + 1; k < solution.length; k++) {
-			if (solution[k][j] == 2) {
-				isTreeAvailable = true;
-			} else if (!isTreeAvailable && solution[k][j] == 1) {
+	private boolean checkcolumn(int var1, int var2) {
+		boolean var3 = false;
+
+		for(int var4 = var1 + 1; var4 < this.solution.length; ++var4) {
+			if (this.solution[var4][var2].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var4][var2].intValue() == 1) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	private boolean checkrow(int i, int j) {
+	private boolean checkrow(int var1, int var2) {
+		boolean var3 = false;
 
-		boolean isTreeAvailable = false;
-		for (int k = j + 1; k < solution.length; k++) {
-			if (solution[i][k] == 2) {
-				isTreeAvailable = true;
-			} else if (!isTreeAvailable && solution[i][k] == 1) {
+		for(int var4 = var2 + 1; var4 < this.solution.length; ++var4) {
+			if (this.solution[var1][var4].intValue() == 2) {
+				var3 = true;
+			} else if (!var3 && this.solution[var1][var4].intValue() == 1) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public static void main(String[] args) {
-
-		Validator validator = new Validator();
-		validator.readInput();
-		validator.validate();
+	public static void main(String[] var0) {
+		Validator var1 = new Validator();
+		var1.readInput();
+		var1.validate();
 	}
 }

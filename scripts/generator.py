@@ -31,10 +31,16 @@ def write_board_to_file(node):
 	f.close()
 
 
+def get_lizard(n, l):
+	r = random.randint(1, n+l)
+	t = random.randint(0, 1)
+	return [r, n][t]
+
+
 def generate():
 	cur_n = random.randint(1, n)
-	cur_t = random.randint(0, cur_n*cur_n)
-	cur_liz = random.randint(0, cur_n)
+	cur_t = random.randint(1, cur_n)
+	cur_liz = get_lizard(cur_n, cur_t)
 	methodName = methods[random.randint(0, 2)]
 	board = []
 	for i in range(0, cur_n):
