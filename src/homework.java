@@ -31,7 +31,7 @@ class InputNode{
 }
 
 
-public class homework {
+class homework {
 
     private void updateBoard(Integer board[][], Point p, Integer n){
         Integer i, j;
@@ -100,7 +100,7 @@ public class homework {
     }
 
 
-    private void printBoard(Integer [][] board, Integer n){
+    public void printBoard(Integer [][] board, Integer n){
         Integer i,j;
         for(i=0;i<n;i++){
             for(j=0;j<n;j++){
@@ -121,7 +121,7 @@ public class homework {
         }
     }
 
-    private Integer [][] boardClone(Integer [][] board, Integer n){
+    public Integer [][] boardClone(Integer [][] board, Integer n){
         Integer i,j;
         Integer [][] new_board = new Integer[n][n];
         for(i=0;i<n;i++){
@@ -166,6 +166,11 @@ public class homework {
         while (!que.isEmpty()) {
             State cur_state = que.remove(0);
             d = cur_state.depth;
+            if(cur_state.depth + 1 < n){
+                Integer [][] skip_board = boardClone(cur_state.board, n);
+                State skip_state = new State(skip_board, cur_state.depth+1, cur_state.lizcount);
+                que.add(skip_state);
+            }
             while (true) {
                 stp = getStart(cur_state.board[d], n);
                 if (stp == -1) {
@@ -203,6 +208,12 @@ public class homework {
         while(!stk.isEmpty()){
             State cur_state = stk.pop();
             d=cur_state.depth;
+
+            if(cur_state.depth + 1 < n){
+                Integer [][] skip_board = boardClone(cur_state.board, n);
+                State skip_state = new State(skip_board, d+1, cur_state.lizcount);
+                stk.push(skip_state);
+            }
             while(true){
                 stp = getStart(cur_state.board[d], n);
                 // row is filled with queens
@@ -263,7 +274,7 @@ public class homework {
         writer.close();
     }
 
-    private InputNode readInput(){
+    public InputNode readInput(){
         Stream<String> rawData;
         List<String> data;
         Integer d, n,p,i,j;
@@ -295,11 +306,14 @@ public class homework {
     public static void main(String[] hmm) {
         homework algo = new homework();
         InputNode input = algo.readInput();
-//        algo.printBoard(input.board, input.size);
-        Integer [][] result = algo.matrixDFS(input.board, input.size, input.lizCount);
+        Integer [][] result;
+        if(input.methodName == "BFS"){
+            result = algo.matrixBFS(input.board, input.size, input.lizCount);
+        }
+        else{
+            result = algo.matrixDFS(input.board, input.size, input.lizCount);
+        }
         algo.zeroBoard(result, input.size);
-//        algo.printBoard(result, input.size);
-//            Integer [][] result = matrixBFS(board, n, p);
         try {
             algo.write_to_file(result);
         }

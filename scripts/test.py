@@ -11,15 +11,21 @@ name = filename[:-5]
 checkFileName = "Validator.java"
 checkName = checkFileName[:-5]
 
+count_input = 0
+
 def run_algo():
 	os.system("java " + name)
 
 def run_check():
 	os.system("java " + checkName + " > result.txt")
 	f = open("result.txt", 'r')
-	if f.read() == "FAILED":
+	info = f.read()
+	if info == "FAILED":
 		os.system("cp input.txt fails")
+		os.system("mv fails/input.txt fails/input" + str(count_input) + ".txt")
+		count_input += 1
 	f.close()
+	os.system("echo "" > result.txt")
 
 def wrap_algo():
 	p = multiprocessing.Process(target=run_algo, name="run_algo")
@@ -32,8 +38,11 @@ def wrap_algo():
 				print("terminating the algorithm ")
 				os.system("echo $(pidof -s java " + name + ")")
 				os.system("kill -9 $(pidof -s java " + name + ")")
-				os.system("cp input.txt fails")
-		break
+				# os.system("cp input.txt fails")
+				# os.system("mv fails/input.txt fails/input" + str(count_input) + ".txt")
+				# count_input += 1
+				# print("failed for this iteration")
+			break
 		if p.is_alive() is False:
 			break
 		time.sleep(10)
@@ -65,5 +74,5 @@ def run_suit():
 		wrap_check()
 		count += 1
 
-iterations = 10000
+iterations = 100000
 run_suit()

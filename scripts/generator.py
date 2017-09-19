@@ -1,7 +1,7 @@
 import random
 
 #max board size
-n = 8
+n = 10
 
 #max num of trees
 t = 3

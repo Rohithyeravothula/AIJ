@@ -1,3 +1,10 @@
 .idea
+*.txt
+*/*.txt
 out
-
+__pycache__
+*/__pycache__
+scripts/*.txt
+*.class
+*/*.class
+scripts/*.java
