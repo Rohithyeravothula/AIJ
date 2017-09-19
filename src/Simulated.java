@@ -4,14 +4,12 @@ import java.util.Random;
 
 public class Simulated {
 
-    Double initial_temperature, temperature_diff;
+    Double start_temperature, temperature, temperature_diff;
 
     public Simulated(Double initial_temp, Double temp_var){
-        initial_temperature = initial_temp;
+        start_temperature = initial_temp;
         temperature_diff = temp_var;
     }
-
-
 
     /**
      *
@@ -109,23 +107,16 @@ public class Simulated {
         return ans.get(2);
     }
 
-    private Double temperature(Double last_temperature){
-//        System.out.println("last temperature " + last_temperature.toString());
-        Double cur = last_temperature * temperature_diff;
-        if(cur <= 0.000000001)
+    private Double get_temperature(Double old_temperature){
+        temperature = old_temperature - temperature_diff;
+        Double t = 10 * Math.log(temperature);
+        if(t <= 0)
             return 0d;
-        return cur;
+        return t;
     }
 
-//    private Double temperature(Integer iter){
-//        Double cur = initial_temperature - temperature_diff*iter;
-//        if(cur <= 0)
-//            return 0d;
-//        return Math.log(cur);
-//    }
-
     private Double chance_value(Integer energy_change, Double temp){
-        return Math.exp((energy_change*1000.0)/temp);
+        return Math.exp((energy_change)/temp);
     }
 
     private Boolean probability(Double f){
@@ -137,16 +128,34 @@ public class Simulated {
     }
 
     private Integer [][] initial_setup(Integer [][] board, Integer size, Integer lizMax){
-        Integer i, j, lizCount=0;
+        Integer i, j, lizCount=0, random_count = 0;
         Random rand = new Random();
         while (lizCount < lizMax){
+            random_count += 1;
             i =  rand.nextInt(size-1);
             j =  rand.nextInt(size-1);
             if(board[i][j] == 0){
                 board[i][j] = 1;
                 lizCount += 1;
             }
+            if(random_count > 1000000)
+                break;
         }
+
+        if(lizCount != lizMax){
+            for(i = 0; i< size; i++)
+                for(j = 0; j< size; j++){
+                    if(board[i][j] == 0){
+                     board[i][j] = 1;
+                     lizCount += 1;
+                    }
+                    if(lizCount == lizMax){
+                        i = size;
+                        j = size;
+                    }
+                }
+        }
+
         return board;
     }
 
@@ -192,69 +201,59 @@ public class Simulated {
         homework how = new homework();
 
         Integer [][] new_state, cur_state, board_state;
-        Integer count, new_energy, cur_energy, iterantions = 10000000;
+        Integer  cur_index, new_energy, cur_energy;
+        Double cur_temp_val;
 
-        board_state = how.boardClone(board, size);
-
-        Double temp_val = initial_temperature;
-        count = 0;
-        cur_state = initial_setup(board, size, lizCount);
-        cur_energy = heuristic(cur_state, size);
-
-        while (true){
-
-//            how.printBoard(cur_state, size);
-            new_state = build_new_state(cur_state, size);
-
-            new_energy = heuristic(new_state, size);
-            temp_val = temperature(temp_val);
-
-//            System.out.println();
-//            how.printBoard(new_state, size);
+        cur_index = 0;
+        while(cur_index <= 100000){
+            cur_index += 1;
+            board_state = how.boardClone(board, size);
+            cur_state = initial_setup(board_state, size, lizCount);
+            cur_energy = heuristic(cur_state, size);
+            temperature = start_temperature;
 
 
-//            System.out.println("current energy: " + cur_energy.toString());
-//            System.out.println("current temperature : " + temp_val.toString());
-//            System.out.println("new energy: " + new_energy.toString());
+            while (true){
+                new_state = build_new_state(cur_state, size);
+                new_energy = heuristic(new_state, size);
+                cur_temp_val = get_temperature(temperature);
 
-            // check this condition
-            if(temp_val == 0d)
-                break;
+                if(new_energy == 0){
+                    cur_state = new_state;
+                    cur_energy = new_energy;
+                    break;
+                }
 
+                if(temperature == 0d){
+                    break;
+                }
 
-            if(new_energy == 0){
-                cur_state = new_state;
-                cur_energy = new_energy;
-                break;
-            }
-
-            Integer energy_change = cur_energy - new_energy;
-
-            if (energy_change >= 0){
-                cur_state = new_state;
-                cur_energy = new_energy;
-            }
-            else{
-                Double chance = chance_value(energy_change, temp_val);
-//                System.out.println("chance value " + chance.toString());
-                if (probability(chance)){
-//                    System.out.println("unfortunately choosing the opp side");
+                Integer energy_change = cur_energy - new_energy;
+                if (energy_change >= 0){
                     cur_state = new_state;
                     cur_energy = new_energy;
                 }
+                else{
+                    Double chance = chance_value(energy_change, cur_temp_val);
+                    if (probability(chance)){
+                        cur_state = new_state;
+                        cur_energy = new_energy;
+                    }
+                }
             }
-            count += 1;
 
-            if(count % 300000 == 0){
-            System.out.println("current energy: " + cur_energy.toString());
-            System.out.println("current temperature : " + temp_val.toString());
-//            System.out.println("new energy: " + new_energy.toString());
-            how.printBoard(cur_state, size);
-            }
-
+            if(cur_energy == 0)
+                return cur_state;
         }
-        if(cur_energy == 0)
-            return cur_state;
+        // didn't find the solution
+        return null;
+    }
+
+    public Integer [][] check_small(Integer [][] board, Integer n, Integer p){
+        if(board[0][0] == 0 && p == 1){
+            board[0][0] = 1;
+            return board;
+        }
         else
             return null;
     }
@@ -263,16 +262,23 @@ public class Simulated {
         Double temp_start, temp_change;
         homework how = new homework();
         InputNode input = how.readInput();
+        Integer [][] state;
 
-        temp_start = 30000d;
-//        temp_start = 30d*Math.pow(Math.PI, (input.size - 3));
-        temp_change = 0.999999d;
+        temp_start = 3500d;
+        temp_change = 0.5d;
 
         Simulated sol = new Simulated(temp_start, temp_change);
-        Integer [][] state = sol.simulated_annehealing(input.board, input.size, input.lizCount);
-        if(state != null)
-        how.printBoard(state, input.size);
+
+        if(input.size == 1)
+            state = sol.check_small(input.board, input.size, input.lizCount);
         else
-        System.out.println("no solution found");
+            state = sol.simulated_annehealing(input.board, input.size, input.lizCount);
+
+        if(state != null){
+            System.out.println("found solution");
+            how.printBoard(state, input.size);
+        }
+        else
+            System.out.println("no solution found");
     }
 }
